@@ -1,4 +1,5 @@
 // import { courseTable } from '@/config/schema';
+import { PLAN_LIMITS, PLAN_KEYS } from '@/config/planLimits';
 // import { currentUser, auth } from '@clerk/nextjs/server';
 // import { GoogleGenAI } from '@google/genai';
 // import { NextResponse } from 'next/server';
@@ -193,9 +194,14 @@ export async function POST(req) {
     const user = await currentUser();
 
     const {has} = await auth();
-    const hasPremiumAccess = has({plan:'premium'})
-     const hasFreeAccess = has({plan:'free_user'})
-     const hasProAccess = has({plan:'pro_plan'})
+    const hasFreeAccess = has({plan:'free_user'});
+    const hasPremiumAccess = has({plan:'premium'});
+    const hasProAccess = has({plan:'pro'});
+
+    // Determine user plan
+    let userPlan = 'free_user';
+    if (hasPremiumAccess) userPlan = 'premium';
+    if (hasProAccess) userPlan = 'pro';
 
     const ai = new GoogleGenAI({
       apiKey: process.env.GEMINI_API_KEY,
@@ -217,15 +223,17 @@ export async function POST(req) {
     // ✔ Clean request
 
     const result = await db.select().from(courseTable)
-      .where(eq(courseTable.userEmail,user?.primaryEmailAddress?.emailAddress))
+      .where(eq(courseTable.userEmail,user?.primaryEmailAddress?.emailAddress));
 
-      if(hasFreeAccess && result?.length>=1){
-         return NextResponse.json({resp:'limit exceeded'})
-      }
-
-      if(hasPremiumAccess && result?.length>=5){
-         return NextResponse.json({resp:'limit exceeded'})
-      }
+    // Course Generation Quota
+    const courseLimit = PLAN_LIMITS[userPlan].course_generation;
+    if (courseLimit !== Infinity && result?.length >= courseLimit) {
+      return NextResponse.json({
+        resp: 'quota_exceeded',
+        message: `${PLAN_KEYS[userPlan].name} plan limit exceeded (${PLAN_KEYS[userPlan].course_generation.replace('_', ' ')})`,
+        redirect: '/workspace/billing'
+      });
+    }
 
     // if(!hasFreeAccess){
     //   const result = await db.select().from(courseTable)

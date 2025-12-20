@@ -62,11 +62,10 @@ const AddNewCourseDialog = ({ children }) => {
         courseId: courseId,
       });
       console.log(result.data);
-      if (result.data.resp == "limit exceeded") {
+      if (result.data.resp === "quota_exceeded") {
         setOpen(false);
-        toast.warning("Please subscribe to plan!");
-        router.push("/workspace/billing");
-
+        toast.error(result.data.message || "Your plan quota is exceeded. Please upgrade your plan.");
+        router.push(result.data.redirect || "/workspace/billing");
         setLoadingState(false);
         return;
       }
