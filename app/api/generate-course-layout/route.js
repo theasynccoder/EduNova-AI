@@ -196,7 +196,7 @@ export async function POST(req) {
     const {has} = await auth();
     const hasFreeAccess = has({plan:'free_user'});
     const hasPremiumAccess = has({plan:'premium'});
-    const hasProAccess = has({plan:'pro'});
+    const hasProAccess = has({plan:'pro_plan'});
 
     // Determine user plan
     let userPlan = 'free_user';
