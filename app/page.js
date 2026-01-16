@@ -72,13 +72,13 @@ const Page = () => {
               LearnAI
             </Button>
           </a>
-          <a href="https://edupluse.aftabmadni.me" target="_blank" rel="noopener noreferrer">
+          <a href="https://edupulse.aftabmadni.me" target="_blank" rel="noopener noreferrer">
             <Button
               variant="default"
               size="lg"
               className="bg-white text-pink-700 rounded-full shadow-2xl hover:bg-pink-100 hover:scale-105 transition-all px-10 py-4 text-lg border border-pink-300"
             >
-              EduPluse
+              EduPulse
             </Button>
           </a>
           <a href="https://learnaiquiz.aftabmadni.me" target="_blank" rel="noopener noreferrer">
